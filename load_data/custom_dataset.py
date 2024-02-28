@@ -1,12 +1,46 @@
 from torch.utils.data import Dataset
+import pandas as pd
+import numpy as np
+import os.path as osp
+import torch
+import torchvision
+from torchvision.transforms import Resize
+
+def Create_mask(labels, img_size):
+    mask = np.zeros(img_size*img_size, np.float32)
+    if len(labels) > 1:
+        np_lbl = np.asarray(labels, dtype=int)
+        for i in range(0, len(np_lbl), 2):
+            # Create a tuple of even and odd numbers
+            start_ind = np_lbl[i]
+            end_ind = np_lbl[i] + np_lbl[i + 1]
+            mask[start_ind:end_ind] = 1.0
+
+    return mask.reshape((img_size, img_size)).T
 
 class CustomDataset(Dataset):
-    def __init__(self, data, labels):
-        self.data = data
-        self.labels = labels
+    def __init__(self, config, batch_size):
+        self.img_size = config['original_img_size']
+        self.new_img_size = config['new_img_size']
+        self.img_path = config['dataset']['train_img_path']
+        self.labels = list(pd.read_csv(osp.join(config['dataset']['dir_path'], 
+                                                'train_ship_segmentations_v2.csv'))["EncodedPixels"].fillna('').str.split())
+        self.img_ids = list(pd.read_csv(osp.join(config['dataset']['dir_path'], 
+                                                'train_ship_segmentations_v2.csv'))["ImageId"])
+        self.batch_size = batch_size
+        self.resizer = Resize([self.new_img_size, self.new_img_size])
 
     def __len__(self):
-        return len(self.data)
+        return self.data.shape[0]
 
     def __getitem__(self, idx):
-        return self.data[idx], self.labels[idx]
+        img_id = self.img_ids[idx]
+        lbl = self.labels[idx]
+        
+        mask = Create_mask(lbl, self.img_size)                         # create mask
+        
+        image = cv2.imread(self.img_path+ "/" + img_id)                # load image
+        res_im = resizer(torch.tensor(np.transpose(image, (2, 0, 1)))) # resize image to [3, 256, 256]
+        norm_ = res_im / 127.5 - 1                                     # normalization from -1 to 1
+        
+        return , self.resizer(torch.tensor(mask))

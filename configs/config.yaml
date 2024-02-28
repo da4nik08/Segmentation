@@ -1,6 +1,7 @@
 dataset:
     train_img_path: "dataset/train_v2"
     test_img_path: "dataset/test_v2"
-    train_lbl_path: "dataset/train_ship_segmentations_v2.csv"
+    dir_path: "dataset"
 original_img_size: 768
 new_img_size: 256
+project_path: "C:/Users/da4nik/Segmentation"
