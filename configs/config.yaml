@@ -1,7 +1,11 @@
 dataset:
     train_img_path: "dataset/train_v2"
     test_img_path: "dataset/test_v2"
+    mask_path: "dataset/train_masks"
+    reshaped_img_path: "dataset/reshaped_img"
     dir_path: "dataset"
 original_img_size: 768
 new_img_size: 256
 project_path: "C:/Users/da4nik/Segmentation"
+model:
+    
