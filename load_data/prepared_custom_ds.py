@@ -8,15 +8,13 @@ import cv2
 
 
 class CustomDataset(Dataset):
-    def __init__(self, config):
+    def __init__(self, config, img_ids, labels):
         self.img_size = config['original_img_size']
         self.new_img_size = config['new_img_size']
         self.img_path = config['dataset']['reshaped_img_path']
         self.mask_path = config['dataset']['mask_path']
-        self.labels = list(pd.read_csv(osp.join(config['dataset']['dir_path'], 
-                                                'train_ship_segmentations_v2.csv'))["EncodedPixels"].fillna('').str.split())
-        self.img_ids = list(pd.read_csv(osp.join(config['dataset']['dir_path'], 
-                                                'train_ship_segmentations_v2.csv'))["ImageId"])
+        self.labels = labels
+        self.img_ids = img_ids
 
     def __len__(self):
         return len(self.img_ids)
