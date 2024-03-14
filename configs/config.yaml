@@ -8,4 +8,5 @@ original_img_size: 768
 new_img_size: 256
 project_path: "C:/Users/da4nik/Segmentation"
 model:
+    svs_path: "model_svs/"
     
