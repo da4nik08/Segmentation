@@ -3,11 +3,9 @@ import pandas as pd
 import os
 import yaml
 import cv2
-import matplotlib.pyplot as plt
 import torch
 import torchvision
 from torchvision.transforms import Resize
-import time
 import os.path as osp
 from tqdm import tqdm
 from utilities.config_load import load_config
