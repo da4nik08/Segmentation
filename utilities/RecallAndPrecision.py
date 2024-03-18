@@ -20,17 +20,17 @@ def RecallAndPrecision(actualv, predictedv):
     TP = TruePositive(actualv, predictedv)
     FN = FalseNegative(actualv, predictedv)
     FP = FalsePositive(actualv, predictedv)
-    FN = TrueNegative(actualv, predictedv)
+    TN = TrueNegative(actualv, predictedv)
     recall = TP / (TP + FN) if TP + FN != 0 else 0
-    percisoin = TP / (TP + FP) if TP + FP != 0 else 0
-    return recall, percisoin, (TP, FN, FP, FN)
+    precisoin = TP / (TP + FP) if TP + FP != 0 else 0
+    return recall, precisoin, (TP, FN, FP, FN)
 
 
 class Metrics():
     def __init__(self):
         self.recall_per_batches = 0
         self.precision_per_batches = 0
-        self.metrics_per_batches = np.array([0, 0, 0, 0])
+        self.metrics_per_batches = np.array([0, 0, 0, 0], dtype=np.float32)
 
     def batch_step(self, actualv, predictedv):
         recall, precision, metrics = RecallAndPrecision(actualv, predictedv)
