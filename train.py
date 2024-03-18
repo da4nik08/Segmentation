@@ -101,6 +101,10 @@ def train(model, loss_fn, opt, train_loader, val_loader, save_treshold=25, epoch
         writer.add_scalars('Training vs. Validation Loss',
                     { 'Training' : avg_loss, 'Validation' : avg_vloss },
                     epoch + 1)
+        writer.add_scalars('Training vs. Validation Metrics',
+                    { 'Training Recall' : recall, 'Validation Recall' : valrecall,
+                    'Training Precision' : precision, 'Training Precision' : valprecision
+                    }, epoch + 1)
         
         if (epoch + 1) % save_treshold == 0:
             model_path = config['model']['svs_path'] + model_name +'_{}_{}'.format(timestamp, (epoch + 1))
