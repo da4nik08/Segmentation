@@ -9,4 +9,16 @@ new_img_size: 256
 project_path: "C:/Users/da4nik/Segmentation"
 model:
     svs_path: "model_svs/"
-    
+    kernel_size: 3
+    nkernels: 2
+    output_chanels: 1
+    dropout_rate: 0.15
+train:
+    model_name: "first_try"
+    epochs: 100
+    save_treshold: 15
+Adam:
+    learning_rate: 0.001
+    beta1: 0.9 
+    beta2: 0.98
+    epsilon: 1e-9
