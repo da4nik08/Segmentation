@@ -3,13 +3,13 @@ import torch
 
 
 def TruePositive(actualv, predictedv):
-    return np.sum((np.round(predictedv) == 1) & (actualv == 1))
+    return np.sum(np.bool_(np.round(predictedv)) & np.bool_(actualv))
 
 def FalseNegative(actualv, predictedv):
-    return np.sum((np.round(predictedv) == 0) & (actualv == 1))
+    return np.sum((np.round(predictedv) == 0) & np.bool_(actualv))
 
 def FalsePositive(actualv, predictedv):
-    return np.sum((np.round(predictedv) == 1) & (actualv == 0))
+    return np.sum(np.bool_(np.round(predictedv)) & (actualv == 0))
 
 def TrueNegative(actualv, predictedv):
     return np.sum((np.round(predictedv) == 0) & (actualv == 0))
@@ -38,9 +38,9 @@ class Metrics():
         self.precision_per_batches += precision
         self.metrics_per_batches += np.array(metrics)
 
-    def batch_average(self, num_batches):
-        self.recall_per_batches /= num_batches
-        self.precision_per_batches /= num_batches
+    def instance_average(self, num_instance):
+        self.recall_per_batches /= num_instance
+        self.precision_per_batches /= num_instance
         self.metrics_per_batches /= num_batches
 
     def get_metrics(self):
