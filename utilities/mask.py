@@ -8,6 +8,6 @@ def Create_mask(labels, img_size):
             # Create a tuple of even and odd numbers
             start_ind = np_lbl[i]
             end_ind = np_lbl[i] + np_lbl[i + 1]
-            mask[start_ind:end_ind] = 1.0
+            mask[start_ind:end_ind] = 1
 
     return mask.reshape((img_size, img_size)).T
