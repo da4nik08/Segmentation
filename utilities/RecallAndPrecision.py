@@ -41,7 +41,7 @@ class Metrics():
     def instance_average(self, num_instance):
         self.recall_per_batches /= num_instance
         self.precision_per_batches /= num_instance
-        self.metrics_per_batches /= num_batches
+        self.metrics_per_batches /= num_instance
 
     def get_metrics(self):
         return self.recall_per_batches, self.precision_per_batches, self.metrics_per_batches
