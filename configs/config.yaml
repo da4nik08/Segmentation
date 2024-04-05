@@ -4,6 +4,7 @@ dataset:
     mask_path: "dataset/train_masks"
     reshaped_img_path: "dataset/reshaped_img"
     dir_path: "dataset"
+    index_path: "dataset/listofindex.pkl"
 original_img_size: 768
 new_img_size: 256
 project_path: "C:/Users/da4nik/Segmentation"
