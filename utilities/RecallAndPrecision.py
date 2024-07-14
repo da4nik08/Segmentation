@@ -14,34 +14,32 @@ def FalsePositive(actualv, predictedv):
 def TrueNegative(actualv, predictedv):
     return np.sum((np.round(predictedv) == 0) & (actualv == 0))
 
-def RecallAndPrecision(actualv, predictedv):
+def GetMetrics(actualv, predictedv):
     actualv = actualv.numpy(force=True)
     predictedv = predictedv.numpy(force=True)
     TP = TruePositive(actualv, predictedv)
     FN = FalseNegative(actualv, predictedv)
     FP = FalsePositive(actualv, predictedv)
     TN = TrueNegative(actualv, predictedv)
-    recall = TP / (TP + FN) if TP + FN != 0 else 0
-    precisoin = TP / (TP + FP) if TP + FP != 0 else 0
-    return recall, precisoin, (TP, FN, FP, FN)
+    return TP, FN, FP, TN
 
 
 class Metrics():
     def __init__(self):
-        self.recall_per_batches = 0
-        self.precision_per_batches = 0
         self.metrics_per_batches = np.array([0, 0, 0, 0], dtype=np.float32)
 
     def batch_step(self, actualv, predictedv):
-        recall, precision, metrics = RecallAndPrecision(actualv, predictedv)
-        self.recall_per_batches += recall
-        self.precision_per_batches += precision
+        metrics = GetMetrics(actualv, predictedv)
         self.metrics_per_batches += np.array(metrics)
 
-    def instance_average(self, num_instance):
-        self.recall_per_batches /= num_instance
-        self.precision_per_batches /= num_instance
-        self.metrics_per_batches /= num_instance
-
     def get_metrics(self):
-        return self.recall_per_batches, self.precision_per_batches, self.metrics_per_batches
+        TP, FN, FP, TN = self.metrics_per_batches
+        recall = TP / (TP + FN) if TP + FN != 0 else 0
+        precisoin = TP / (TP + FP) if TP + FP != 0 else 0
+        return recall, precisoin, self.metrics_per_batches
+
+    def get_metrics_dice_iou(self):
+        TP, FN, FP, TN = self.metrics_per_batches
+        dice = (2 * TP) / (2 * TP + FP + FN) if TP + FP + FN != 0 else 0
+        iou = TP / (TP + FP + FN) if TP + FP + FN != 0 else 0
+        return dice, iou
