@@ -15,13 +15,14 @@ model:
     output_chanels: 1
     dropout_rate: 0.15
 dataloader:
-    batch_size: 160
+    batch_size: 72
     num_workers: 0
     shuffle: True
 train:
     model_name: "first_try"
     epochs: 100
     save_treshold: 15
+    positive_weight: 5.0
 Adam:
     learning_rate: 0.001
     beta1: 0.9 
