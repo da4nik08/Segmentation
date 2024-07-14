@@ -5,6 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 from load_data.prepared_custom_ds import CustomDataset
 from utilities.config_load import load_config
 from utilities.RecallAndPrecision import Metrics
+from utilities.weighted_cross_entropy import weighted_cross_entropy
 import time
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
@@ -24,17 +25,23 @@ labels = list(pd.read_csv(osp.join(config['dataset']['dir_path'],
                                                 'train_ship_segmentations_v2.csv'))["EncodedPixels"].fillna('').str.split())
 img_ids = list(pd.read_csv(osp.join(config['dataset']['dir_path'], 
                                                 'train_ship_segmentations_v2.csv'))["ImageId"])
+
+
+masks = list()
+for id in tqdm(mask_ids):
+    masks.append(np.load(config['dataset']['mask_path'] + "/" + id))
+
 X_train, X_test, y_train, y_test = train_test_split(img_ids, 
-                                                    labels, 
-                                                    test_size=0.1,
+                                                    masks, 
+                                                    test_size=0.05,
                                                     random_state=42)
 
 
-def train_step(model, loss_fn, opt, loader, metrics):
+def train_step(model, loss_fn, opt, loader):
     loss_per_batches = 0
     elapsed = 0
     start_epoch2 = time.time()
-    for i, data in tqdm(enumerate(loader), total=231000//160):
+    for i, data in tqdm(enumerate(loader), total=66922//72):
 
         start_epoch = time.time()
         features, labels = data
@@ -42,22 +49,20 @@ def train_step(model, loss_fn, opt, loader, metrics):
         opt.zero_grad()
         
         y_pred = model(features)
-        loss = loss_fn(y_pred, labels)
+        loss, _ = loss_fn(torch.flatten(y_pred), torch.flatten(labels))
         loss.backward()
         
         opt.step()
         
         loss_per_batches += loss
-        metrics.batch_step(labels, y_pred)
         end_epoch = time.time()
         elapsed += (end_epoch - start_epoch)
 
     print("train = " + str(elapsed))
     print("train + load = " + str(time.time() - start_epoch2))
-    metrics.batch_average(i+1)
     return loss_per_batches/(i+1)
 
-def train(model, loss_fn, opt, train_loader, val_loader, save_treshold=25, epochs=50, model_name='model_name'):
+def train(model, loss_fn, opt, train_loader, val_loader, save_treshold=10, epochs=50, model_name='model_name'):
         
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     writer = SummaryWriter('runs/' + model_name + '_{}'.format(timestamp))
@@ -65,12 +70,11 @@ def train(model, loss_fn, opt, train_loader, val_loader, save_treshold=25, epoch
     
     for epoch in range(epochs):
         start_epoch = time.time()
-        metrics = Metrics()
         metrics_valid = Metrics()
         print('EPOCH {}:'.format(epoch + 1))
         
         model.train()
-        avg_loss = train_step(model, loss_fn, opt, train_loader, metrics)
+        avg_loss = train_step(model, loss_fn, opt, train_loader)
         model.eval()
 
         vloss = 0
@@ -81,29 +85,26 @@ def train(model, loss_fn, opt, train_loader, val_loader, save_treshold=25, epoch
                 vfeatures, vlabels = vfeatures.to(device), vlabels.to(device)
 
                 y_pred = model(vfeatures)
-                vloss += loss_fn(y_pred, vlabels)
-                metrics_valid.batch_step(vlabels, y_pred)
+                bloss, y_pred = loss_fn(torch.flatten(y_pred), torch.flatten(vlabels))
+                vloss += bloss
+                metrics_valid.batch_step(torch.flatten(vlabels), y_pred)
                 counter = i
 
         avg_vloss = vloss / (counter + 1)
-        metrics_valid.batch_average(counter+1)
         
         scheduler.step(avg_loss)
 
-        recall, precision, metr = metrics.get_metrics()
         valrecall, valprecision, valmetr = metrics_valid.get_metrics()
-        print('Recall train {} valid {}'.format(recall, valrecall))
-        print('Precision train {} valid {}'.format(precision, valprecision))
         print('LOSS train {} valid {}'.format(avg_loss, avg_vloss))
-        print('Train TP->{} | FN ->{}| FP->{} | TN->{}'.format(*metr))
+        print('Recall valid {}'.format(valrecall))
+        print('Precision valid {}'.format(valprecision))
         print('Val TP->{} | FN ->{}| FP->{} | TN->{}'.format(*valmetr))
         
         writer.add_scalars('Training vs. Validation Loss',
                     { 'Training' : avg_loss, 'Validation' : avg_vloss },
                     epoch + 1)
-        writer.add_scalars('Training vs. Validation Metrics',
-                    { 'Training Recall' : recall, 'Validation Recall' : valrecall,
-                    'Training Precision' : precision, 'Training Precision' : valprecision
+        writer.add_scalars('Validation Metrics',
+                    { 'Validation Recall' : valrecall, 'Training Precision' : valprecision
                     }, epoch + 1)
         
         if (epoch + 1) % save_treshold == 0:
@@ -130,7 +131,7 @@ model = Model_Unet(kernel_size=config['model']['kernel_size'],
                    dropout_rate=config['model']['dropout_rate'], 
                    nkernels=config['model']['nkernels'], 
                    output_chanels=config['model']['output_chanels'])
-loss_fn = torch.nn.BCELoss()
+loss_fn = weighted_cross_entropy
 optimizer = torch.optim.Adam(model.parameters(),
                              lr=config['Adam']['learning_rate'], 
                              betas=(config['Adam']['beta1'], config['Adam']['beta2']), 
