@@ -109,5 +109,5 @@ class Model_Unet(nn.Module):
         out = self.conv9(torch.cat((out, list_skips[0]), 1)) # channel concat
         out = self.relu(out)
         out = self.conv10(out)
-        out = self.activation(out)
+        #out = self.activation(out)                          # loss function with logit
         return out
