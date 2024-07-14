@@ -1,17 +1,12 @@
 from torch.utils.data import Dataset
-import pandas as pd
 import numpy as np
-import os.path as osp
 import torch
-import torchvision
 import cv2
 
 
 class CustomDataset(Dataset):
     def __init__(self, config, img_ids, mask_ids):
-        self.img_size = config['original_img_size']
-        self.new_img_size = config['new_img_size']
-        self.img_path = config['dataset']['train_img_path']
+        self.img_path = config['dataset']['reshaped_img_path']
         self.mask_path = config['dataset']['mask_path']
         self.img_ids = img_ids
         self.mask_ids = mask_ids
