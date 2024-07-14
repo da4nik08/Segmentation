@@ -1,0 +1,16 @@
+kaggle==1.5.16
+matplotlib==3.7.2
+matplotlib-inline==0.1.6
+numpy==1.24.4
+opencv-python==4.8.0.76
+pandas==2.2.2
+PyYAML==6.0.1
+pickleshare==0.7.5
+safetensors==0.4.3
+scikit-learn==1.2.2
+tensorboard==2.16.2
+tensorboard-data-server==0.7.1
+torch==2.1.1+cu118
+torch-summary==1.4.5
+torchvision==0.16.1
+tqdm==4.66.1
