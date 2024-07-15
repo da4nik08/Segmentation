@@ -3,6 +3,7 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from load_data.prepared_custom_ds import CustomDataset
+from models.small_model import Model_Unet
 from utilities.config_load import load_config
 from utilities.RecallAndPrecision import Metrics
 from utilities.weighted_cross_entropy import weighted_cross_entropy
