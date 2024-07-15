@@ -5,13 +5,14 @@ dataset:
     reshaped_img_path: "dataset/reshaped_img"
     dir_path: "dataset"
     index_path: "dataset/listofindex.pkl"
+    inf_img_path: "dataset/inference_img"
 original_img_size: 768
 new_img_size: 256
 project_path: "C:/Users/da4nik/Segmentation"
 model:
     svs_path: "model_svs/"
     kernel_size: 3
-    nkernels: 2
+    nkernels: 4
     output_chanels: 1
     dropout_rate: 0.15
 dataloader:
