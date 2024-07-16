@@ -32,6 +32,7 @@ def main(input_file, out_file):
         pred = model(reshaped_img)
         
     image = torch.nn.functional.sigmoid(pred)
+    image = (image >= 0.98).float()
     image = image.numpy(force=True)
     image = np.transpose(image, (2, 0, 1))
     cv2.imwrite(config['dataset']['reshaped_img_path'] + "/" + out_file, image)
