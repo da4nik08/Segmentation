@@ -41,7 +41,9 @@ The image must be in the directory **dataset/inference_img** (or change settings
 ```bash
 inference.py input_file output_file
 ```
+## Screenshot of reuslt
 
+![Result Screenshot](https://github.com/da4nik08/Segmentation/blob/master/dataset/inference_img/original.png)
 
 ## Tech Stack
 
